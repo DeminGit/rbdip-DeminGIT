@@ -45,7 +45,9 @@ class MigrationHttpLoadTest {
                     "--server.port=0", "--spring.datasource.url=" + postgres.getJdbcUrl(),
                     "--spring.datasource.username=" + postgres.getUsername(),
                     "--spring.datasource.password=" + postgres.getPassword(),
-                    "--spring.flyway.target=3", "--spring.jpa.properties.hibernate.generate_statistics=false")) {
+                    "--spring.flyway.target=3", "--spring.jpa.properties.hibernate.generate_statistics=false",
+                    "--spring.datasource.hikari.maximum-pool-size=2", "--spring.datasource.hikari.minimum-idle=2",
+                    "--spring.datasource.hikari.data-source-properties.prepareThreshold=1")) {
                 int port = ((ServletWebServerApplicationContext) context).getWebServer().getPort();
                 RestTemplate client = new RestTemplateBuilder().rootUri("http://localhost:" + port)
                         .setConnectTimeout(Duration.ofSeconds(3)).setReadTimeout(Duration.ofSeconds(5)).build();
@@ -64,6 +66,10 @@ class MigrationHttpLoadTest {
         Long id = ((Number) product.get("id")).longValue();
         CreateOrderRequest request = new CreateOrderRequest("Load Customer", "Home", null, "regular", null,
                 List.of(new CreateOrderRequest.Item(id, 1)));
+        // Warm server-side prepared statements before changing the schema.
+        for (int i = 0; i < 6; i++) {
+            assertThat(client.postForEntity("/orders", request, Map.class).getStatusCode().value()).isEqualTo(201);
+        }
         AtomicBoolean running = new AtomicBoolean(true);
         AtomicInteger requests = new AtomicInteger();
         List<Throwable> failures = new CopyOnWriteArrayList<>();

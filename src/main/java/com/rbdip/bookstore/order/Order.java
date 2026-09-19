@@ -9,8 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -20,9 +24,13 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
+    @OneToMany
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false)
     private String status;
@@ -41,6 +49,10 @@ public class Order {
 
     public Long getId() {
         return id;
+    }
+
+    public List<OrderItem> getItems() {
+        return List.copyOf(items);
     }
 
     public String getCustomerFullName() {

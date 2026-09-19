@@ -12,7 +12,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
                          ELSE substring(:name FROM strpos(:name, ' ') + 1) END, :address, :phone)
             ON CONFLICT (first_name, last_name, address, phone)
             DO UPDATE SET first_name = EXCLUDED.first_name
-            RETURNING *
+            RETURNING id, first_name, last_name, address, phone
             """, nativeQuery = true)
     Customer resolve(String name, String address, String phone);
 }
