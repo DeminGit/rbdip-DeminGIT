@@ -1,5 +1,6 @@
 target/
 score.json
+__pycache__/
 *.class
 .idea/
 *.iml

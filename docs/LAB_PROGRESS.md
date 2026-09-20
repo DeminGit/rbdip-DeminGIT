@@ -4,6 +4,19 @@
 в отдельной ветке `lab/0N-*` и вливается merge-коммитом через GitHub PR.
 Эталонные тесты, V1 и пороги оценивания не изменяются.
 
+| Этап | Ветка | Результат проверки этапа |
+|---|---|---|
+| [ЛР1, PR #1](https://github.com/DeminGit/rbdip-DeminGIT/pull/1) | lab/01-refactoring | CI: 30/100 после исходного merge |
+| [ЛР2, PR #2](https://github.com/DeminGit/rbdip-DeminGIT/pull/2) | lab/02-normalization | CI: 55/100 |
+| [ЛР3, PR #3](https://github.com/DeminGit/rbdip-DeminGIT/pull/3) | lab/03-expand-contract | CI: 65/100 |
+| [ЛР4, PR #4](https://github.com/DeminGit/rbdip-DeminGIT/pull/4) | lab/04-query-architecture | CI: 85/100 |
+| ЛР5 | lab/05-final-pipeline | Локальный полный прогон: 100/100 |
+
+Финальный локальный прогон: 45 Java-тестов без ошибок и пропусков, 5 тестов
+проверки отчётов, JaCoCo 92,51%, PIT 10/11 (90,91%), Checkstyle 0, PMD 7
+(суммарный допустимый порог стиля — 15). Проверяйте итоговый CI по SHA
+последнего merge в main, а не по старому запуску другой ветки.
+
 ## ЛР2
 
 Добавлены характеризационные тесты цены, таблица customers, внешние ключи
@@ -65,6 +78,19 @@ statements с prepareThreshold=1 перед contract-миграцией.
 а при невозможности получить блокировки откладывается миграция. Это дополнение
 не меняет checksum уже опубликованных V1–V5.
 
+## ЛР5
+
+Подключён pitest-junit5-plugin 1.2.2, совместимый с PIT 1.17.3:
+без него исходный PIT не запускал JUnit 5 тесты. Добавлены сценарии сочетания
+скидок, границ после купонов и округления после суммирования строк.
+Пороги 60% покрытия/мутаций и 15 нарушений стиля сохранены.
+
+Maven больше не игнорирует падения тестов и недостаточное покрытие.
+CI начинает с clean verify, сохраняет отчёты даже при ошибке и завершается
+обязательной проверкой check_results.py. Исходный write_score.py не меняется;
+дополнительная проверка учитывает реальные нарушения PMD с XML namespace,
+отсутствующие/пустые JUnit-отчёты, пропуски, ошибки и неполные PIT-результаты.
+
 ## Как проверять
 
 Нужны Java 21, Maven, Python 3 и работающий Docker с Linux-контейнерами.
@@ -73,6 +99,7 @@ statements с prepareThreshold=1 перед contract-миграцией.
 mvn clean verify
 mvn org.pitest:pitest-maven:mutationCoverage
 python scripts/write_score.py
+python scripts/check_results.py
 ```
 
 Смотрите все `gates.*.passed` и `score = 100` в score.json, а также отчёты
