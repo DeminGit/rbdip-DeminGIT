@@ -10,6 +10,7 @@ Java 21 + Spring Boot + Spring Data JPA (Hibernate) + PostgreSQL + Maven.
 
 - 📋 [Памятка студента](docs/STUDENT_GUIDE.md) — как начать, правила проверки, баллы
 - 📝 [Задания по лабораторным работам](docs/ASSIGNMENTS.md) — что делать в каждой ЛР и какой гейт это проверяет
+- 🔎 [Выполнение ЛР и проверка результата](docs/LAB_PROGRESS.md) — последовательность PR, миграции и полный прогон
 - ✅ [Actions](../../actions) — статус проверки вашего решения и баллы по гейтам (артефакт `score`)
 
 ## Как запустить локально
@@ -26,6 +27,18 @@ mvn spring-boot:run           # приложение на http://localhost:8080
 ```bash
 mvn verify
 ```
+
+Полная финальная проверка, включая mutation testing и все гейты:
+
+```bash
+mvn clean verify
+mvn org.pitest:pitest-maven:mutationCoverage
+python scripts/write_score.py
+python scripts/check_results.py
+```
+
+Последняя команда проверяет 100/100 и исходные отчёты; отсутствующие отчёты,
+падения и пропуски тестов приводят к ошибке. Такой же обязательный шаг завершает CI.
 
 ## Структура проекта
 

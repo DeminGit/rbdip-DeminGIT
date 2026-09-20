@@ -22,7 +22,7 @@ jobs:
       # поднимает PostgreSQL сам, отдельный service-контейнер не нужен.
 
       - name: Собрать и прогнать проверки (checkstyle, pmd, tests, jacoco)
-        run: mvn -B verify
+        run: mvn -B clean verify
         continue-on-error: true
 
       - name: Mutation testing (PIT)
@@ -30,9 +30,11 @@ jobs:
         continue-on-error: true
 
       - name: Сформировать score.json
+        if: always()
         run: python3 scripts/write_score.py
 
       - name: Опубликовать артефакт score
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: score
@@ -50,3 +52,9 @@ jobs:
             target/checkstyle-result.xml
             target/pmd.xml
           if-no-files-found: ignore
+
+      - name: Проверить все гейты и полноту отчётов
+        if: always()
+        run: |
+          python3 scripts/test_check_results.py
+          python3 scripts/check_results.py
